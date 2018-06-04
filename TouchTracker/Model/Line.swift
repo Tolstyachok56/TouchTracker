@@ -6,7 +6,7 @@
 //  Copyright © 2018 Виктория Бадисова. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import CoreGraphics
 
 struct Line {
@@ -21,6 +21,10 @@ struct Line {
         let angleValue = (angle.value > 0) ? angle.value : (angle.value + 360)
         let res: Measurement<UnitAngle> = Measurement(value: angleValue, unit: .degrees)
         return res
+    }
+    
+    var color: UIColor {
+        return UIColor(hue: CGFloat(angle.value / 360), saturation: 1, brightness: 1, alpha: 1)
     }
     
 }

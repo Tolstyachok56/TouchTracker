@@ -41,13 +41,12 @@ class DrawView: UIView {
     }
     
     override func draw(_ rect: CGRect) {
-        finishedLineColor.setStroke()
         for line in finishedLines {
+            line.color.setStroke()
             stroke(line)
         }
         for (_, line) in currentLines {
-            let color = UIColor(hue: CGFloat(line.angle.value / 360), saturation: 1, brightness: 1, alpha: 1)
-            color.setStroke()
+            line.color.setStroke()
             stroke(line)
         }
     }
