@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		04AA7CA420C5409D00B0BA4D /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AA7CA320C5409D00B0BA4D /* Line.swift */; };
 		04AA7CA620C5417600B0BA4D /* DrawView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AA7CA520C5417600B0BA4D /* DrawView.swift */; };
+		04AA7CA820C578DA00B0BA4D /* Circle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AA7CA720C578DA00B0BA4D /* Circle.swift */; };
 		04BC352F20C538860001F4A0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04BC352E20C538860001F4A0 /* AppDelegate.swift */; };
 		04BC353120C538860001F4A0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04BC353020C538860001F4A0 /* ViewController.swift */; };
 		04BC353420C538860001F4A0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04BC353220C538860001F4A0 /* Main.storyboard */; };
@@ -38,6 +39,7 @@
 /* Begin PBXFileReference section */
 		04AA7CA320C5409D00B0BA4D /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		04AA7CA520C5417600B0BA4D /* DrawView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawView.swift; sourceTree = "<group>"; };
+		04AA7CA720C578DA00B0BA4D /* Circle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Circle.swift; sourceTree = "<group>"; };
 		04BC352B20C538860001F4A0 /* TouchTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TouchTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04BC352E20C538860001F4A0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		04BC353020C538860001F4A0 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				04AA7CA320C5409D00B0BA4D /* Line.swift */,
+				04AA7CA720C578DA00B0BA4D /* Circle.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -286,6 +289,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04AA7CA820C578DA00B0BA4D /* Circle.swift in Sources */,
 				04AA7CA420C5409D00B0BA4D /* Line.swift in Sources */,
 				04BC353120C538860001F4A0 /* ViewController.swift in Sources */,
 				04AA7CA620C5417600B0BA4D /* DrawView.swift in Sources */,

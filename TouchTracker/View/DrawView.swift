@@ -9,8 +9,10 @@
 import UIKit
 
 class DrawView: UIView {
-    var currentLines = [NSValue: Line]()
-    var finishedLines = [Line]()
+    
+    var currentCircle: Circle?
+    var finishedCircles = [Circle]()
+    var circleTouches = [NSValue: CGPoint]()
     
     @IBInspectable var finishedLineColor: UIColor = .black {
         didSet {
@@ -30,63 +32,63 @@ class DrawView: UIView {
         }
     }
     
-    func stroke(_ line: Line) {
-        let path = UIBezierPath()
+    func stroke(_ circle: Circle) {
+        let path = UIBezierPath(ovalIn: circle.rect)
         path.lineWidth = lineThickness
-        path.lineCapStyle = .round
-        
-        path.move(to: line.begin)
-        path.addLine(to: line.end)
         path.stroke()
     }
     
     override func draw(_ rect: CGRect) {
         finishedLineColor.setStroke()
-        for line in finishedLines {
-            stroke(line)
+        for circle in finishedCircles {
+            stroke(circle)
         }
+        
         currentLineColor.setStroke()
-        for (_, line) in currentLines {
-            stroke(line)
+        if let circle = currentCircle {
+            stroke(circle)
         }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
-        for touch in touches {
-            let location = touch.location(in: self)
-            let newLine = Line(begin: location, end: location)
-            let key = NSValue(nonretainedObject: touch)
-            currentLines[key] = newLine
+        if touches.count == 2 {
+            for touch in touches {
+                let key = NSValue(nonretainedObject: touch)
+                circleTouches[key] = touch.location(in: self)
+            }
+            currentCircle = Circle.init(Array(circleTouches.values))
         }
         setNeedsDisplay()
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
-        for touch in touches {
-            let key = NSValue(nonretainedObject: touch)
-            currentLines[key]?.end = touch.location(in: self)
+        if touches.count == 2, let _ = currentCircle {
+            for touch in touches {
+                let key = NSValue(nonretainedObject: touch)
+                circleTouches[key] = touch.location(in: self)
+            }
+            currentCircle = Circle.init(Array(circleTouches.values))
         }
         setNeedsDisplay()
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
-        for touch in touches {
-            let key = NSValue(nonretainedObject: touch)
-            if var line = currentLines[key] {
-                line.end = touch.location(in: self)
-                finishedLines.append(line)
-                currentLines.removeValue(forKey: key)
+        if touches.count == 2, let _ = currentCircle {
+            for touch in touches {
+                let key = NSValue(nonretainedObject: touch)
+                circleTouches[key] = touch.location(in: self)
             }
+            currentCircle = Circle.init(Array(circleTouches.values))
+            finishedCircles.append(currentCircle!)
+            circleTouches.removeAll()
+            currentCircle = nil
         }
         setNeedsDisplay()
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
-        currentLines.removeAll()
+        currentCircle = nil
+        circleTouches.removeAll()
         setNeedsDisplay()
     }
     
