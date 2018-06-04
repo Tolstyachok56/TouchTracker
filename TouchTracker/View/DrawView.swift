@@ -45,14 +45,14 @@ class DrawView: UIView {
         for line in finishedLines {
             stroke(line)
         }
-        currentLineColor.setStroke()
         for (_, line) in currentLines {
+            let color = UIColor(hue: CGFloat(line.angle.value / 360), saturation: 1, brightness: 1, alpha: 1)
+            color.setStroke()
             stroke(line)
         }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
         for touch in touches {
             let location = touch.location(in: self)
             let newLine = Line(begin: location, end: location)
@@ -63,7 +63,6 @@ class DrawView: UIView {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
         for touch in touches {
             let key = NSValue(nonretainedObject: touch)
             currentLines[key]?.end = touch.location(in: self)
@@ -72,7 +71,6 @@ class DrawView: UIView {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
         for touch in touches {
             let key = NSValue(nonretainedObject: touch)
             if var line = currentLines[key] {
@@ -85,7 +83,6 @@ class DrawView: UIView {
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
         currentLines.removeAll()
         setNeedsDisplay()
     }
