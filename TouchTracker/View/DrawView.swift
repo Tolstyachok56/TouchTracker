@@ -20,6 +20,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     var longPressRecognizer: UILongPressGestureRecognizer!
     var moveRecognizer: UIPanGestureRecognizer!
+//    var moveVelocity: CGPoint!
     
     @IBInspectable var finishedLineColor: UIColor = .black {
         didSet { setNeedsDisplay() }
@@ -32,6 +33,11 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     @IBInspectable var lineThickness: CGFloat = 10 {
         didSet { setNeedsDisplay() }
     }
+
+//    var lineThickness: CGFloat {
+//        let thickness = hypot(moveVelocity.x, moveVelocity.y)
+//        return thickness
+//    }
     
     override var canBecomeFirstResponder: Bool {
         return true
@@ -207,11 +213,10 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     @objc func moveLine(_ gestureRecognizer: UIPanGestureRecognizer) {
         print("Recognized a pan")
-        guard longPressRecognizer.state == .changed else { return }
         if let index = selectedLineIndex {
             if gestureRecognizer.state == .changed {
+                guard longPressRecognizer.state == .changed else { return }
                 let translation = gestureRecognizer.translation(in: self)
-                
                 finishedLines[index].begin.x += translation.x
                 finishedLines[index].begin.y += translation.y
                 finishedLines[index].end.x += translation.x
