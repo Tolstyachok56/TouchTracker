@@ -11,6 +11,7 @@ import UIKit
 class DrawView: UIView {
     var currentLines = [NSValue: Line]()
     var finishedLines = [Line]()
+    var selectedLineIndex: Int?
     
     @IBInspectable var finishedLineColor: UIColor = .black {
         didSet { setNeedsDisplay() }
@@ -22,6 +23,25 @@ class DrawView: UIView {
     
     @IBInspectable var lineThickness: CGFloat = 10 {
         didSet { setNeedsDisplay() }
+    }
+    
+    //MARK: -
+    
+    func indexOfLine(at point: CGPoint) -> Int? {
+        for (index, line) in finishedLines.enumerated() {
+            let begin = line.begin
+            let end = line.end
+            
+            for t in stride(from: CGFloat(0), to: 1.0, by: 0.05) {
+                let x = begin.x + ((end.x - begin.x) * t)
+                let y = begin.y + ((end.y - begin.y) * t)
+                
+                if hypot(x - point.x, y - point.y) < 20 {
+                    return index
+                }
+            }
+        }
+        return nil
     }
     
     //MARK: - Initializers
@@ -40,7 +60,6 @@ class DrawView: UIView {
         addGestureRecognizer(tapRecognizer)
     }
     
-    
     //MARK: - Drawing methods
     
     override func draw(_ rect: CGRect) {
@@ -51,6 +70,11 @@ class DrawView: UIView {
         currentLineColor.setStroke()
         for (_, line) in currentLines {
             stroke(line)
+        }
+        if let index = selectedLineIndex {
+            UIColor.green.setStroke()
+            let selectedLine = finishedLines[index]
+            stroke(selectedLine)
         }
     }
     
@@ -105,11 +129,12 @@ class DrawView: UIView {
         setNeedsDisplay()
     }
     
-    //MARK: - UITapGestureRecognizer methods
+    //MARK: - UITapGestureRecognizer selectors
     
     @objc func doubleTap(_ gestureRecognizer: UIGestureRecognizer) {
         print("Recognized a double tap")
         
+        selectedLineIndex = nil
         currentLines.removeAll()
         finishedLines.removeAll()
         setNeedsDisplay()
@@ -117,6 +142,10 @@ class DrawView: UIView {
     
     @objc func tap(_ gestureRecognizer: UIGestureRecognizer) {
         print("Recognized a tap")
+        
+        let point = gestureRecognizer.location(in: self)
+        selectedLineIndex = indexOfLine(at: point)
+        setNeedsDisplay()
     }
     
 }
