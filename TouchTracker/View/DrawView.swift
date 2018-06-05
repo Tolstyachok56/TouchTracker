@@ -11,8 +11,13 @@ import UIKit
 class DrawView: UIView {
     var currentLines = [NSValue: Line]()
     var finishedLines = [Line]()
-    var selectedLineIndex: Int?
-    
+    var selectedLineIndex: Int? {
+        didSet {
+            if selectedLineIndex == nil {
+                UIMenuController.shared.setMenuVisible(false, animated: true)
+            }
+        }
+    }
     @IBInspectable var finishedLineColor: UIColor = .black {
         didSet { setNeedsDisplay() }
     }
@@ -23,6 +28,10 @@ class DrawView: UIView {
     
     @IBInspectable var lineThickness: CGFloat = 10 {
         didSet { setNeedsDisplay() }
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
     }
     
     //MARK: -
@@ -42,6 +51,14 @@ class DrawView: UIView {
             }
         }
         return nil
+    }
+    
+    @objc func deleteLine(_ sender: UIMenuController) {
+        if let index = selectedLineIndex {
+            finishedLines.remove(at: index)
+            selectedLineIndex = nil
+        }
+        setNeedsDisplay()
     }
     
     //MARK: - Initializers
@@ -145,6 +162,21 @@ class DrawView: UIView {
         
         let point = gestureRecognizer.location(in: self)
         selectedLineIndex = indexOfLine(at: point)
+        
+        let menu = UIMenuController.shared
+        
+        if selectedLineIndex != nil {
+            becomeFirstResponder()
+            
+            let deleteItem = UIMenuItem(title: "Delete", action: #selector(deleteLine))
+            menu.menuItems = [deleteItem]
+            
+            let targetRect = CGRect(x: point.x, y: point.y, width: 2, height: 2)
+            menu.setTargetRect(targetRect, in: self)
+            menu.setMenuVisible(true, animated: true)
+        } else {
+            menu.setMenuVisible(false, animated: true)
+        }
         setNeedsDisplay()
     }
     
