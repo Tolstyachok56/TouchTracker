@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DrawView: UIView {
+class DrawView: UIView, UIGestureRecognizerDelegate {
     
     var currentLines = [NSValue: Line]()
     var finishedLines = [Line]()
@@ -17,6 +17,8 @@ class DrawView: UIView {
             if selectedLineIndex == nil { UIMenuController.shared.setMenuVisible(false, animated: true) }
         }
     }
+    
+    var moveRecognizer: UIPanGestureRecognizer!
     
     @IBInspectable var finishedLineColor: UIColor = .black {
         didSet { setNeedsDisplay() }
@@ -39,18 +41,23 @@ class DrawView: UIView {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(doubleTap))
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(doubleTap(_:)))
         doubleTapRecognizer.numberOfTapsRequired = 2
         doubleTapRecognizer.delaysTouchesBegan = true
         addGestureRecognizer(doubleTapRecognizer)
         
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap))
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(_:)))
         tapRecognizer.delaysTouchesBegan = true
         tapRecognizer.require(toFail: doubleTapRecognizer)
         addGestureRecognizer(tapRecognizer)
         
-        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress))
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
         addGestureRecognizer(longPressRecognizer)
+        
+        moveRecognizer = UIPanGestureRecognizer(target: self, action: #selector(moveLine(_:)))
+        moveRecognizer.delegate = self
+        moveRecognizer.cancelsTouchesInView = false
+        addGestureRecognizer(moveRecognizer)
     }
     
     //MARK: - Drawing methods
@@ -144,7 +151,7 @@ class DrawView: UIView {
         if selectedLineIndex != nil {
             becomeFirstResponder()
             
-            let deleteItem = UIMenuItem(title: "Delete", action: #selector(deleteLine))
+            let deleteItem = UIMenuItem(title: "Delete", action: #selector(deleteLine(_:)))
             menu.menuItems = [deleteItem]
             
             let targetRect = CGRect(x: point.x, y: point.y, width: 2, height: 2)
@@ -195,6 +202,30 @@ class DrawView: UIView {
         }
         
         setNeedsDisplay()
+    }
+    
+    @objc func moveLine(_ gestureRecognizer: UIPanGestureRecognizer) {
+        print("Recognized a pan")
+        
+        if let index = selectedLineIndex {
+            if gestureRecognizer.state == .changed {
+                let translation = gestureRecognizer.translation(in: self)
+                
+                finishedLines[index].begin.x += translation.x
+                finishedLines[index].begin.y += translation.y
+                finishedLines[index].end.x += translation.x
+                finishedLines[index].end.y += translation.y
+                
+                gestureRecognizer.setTranslation(CGPoint.zero, in: self)
+                setNeedsDisplay()
+            }
+        }
+    }
+    
+    //MARK: - UIGestureRecognizerDelegate methods
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
     
 }
