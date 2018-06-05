@@ -20,7 +20,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     var longPressRecognizer: UILongPressGestureRecognizer!
     var moveRecognizer: UIPanGestureRecognizer!
-    
+   
     @IBInspectable var finishedLineColor: UIColor = .black {
         didSet { setNeedsDisplay() }
     }
@@ -29,13 +29,15 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         didSet { setNeedsDisplay() }
     }
     
-//    @IBInspectable var lineThickness: CGFloat = 10 {
-//        didSet { setNeedsDisplay() }
-//    }
+    var minVelocity = CGFloat.greatestFiniteMagnitude
+    var maxVelocity = CGFloat.leastNonzeroMagnitude
+    var currentVelocity: CGFloat = 0
+    
     var lineThickness: CGFloat {
-        let vectorVelocity = moveRecognizer.velocity(in: self)
-        let velocity = hypot(vectorVelocity.x, vectorVelocity.y)
-        return velocity / 10
+        let minWidth: CGFloat = 1
+        let maxWidth: CGFloat = 40
+        let width = (maxVelocity - currentVelocity) / (maxVelocity - minVelocity) * (maxWidth - minWidth) + minWidth
+        return width
     }
     
     override var canBecomeFirstResponder: Bool {
@@ -109,10 +111,11 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         print(#function)
+
         for touch in touches {
             let key = NSValue(nonretainedObject: touch)
             currentLines[key]?.end = touch.location(in: self)
-//            currentLines[key]?.thickness = lineThickness
+            currentLines[key]?.thickness = lineThickness
         }
         setNeedsDisplay()
     }
@@ -123,6 +126,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
             let key = NSValue(nonretainedObject: touch)
             if var line = currentLines[key] {
                 line.end = touch.location(in: self)
+                line.thickness = lineThickness
                 finishedLines.append(line)
                 currentLines.removeValue(forKey: key)
             }
@@ -197,6 +201,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     @objc func longPress(_ gestureRecognizer: UIGestureRecognizer) {
         print("Recognized a long press")
+     
         
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: self)
@@ -213,9 +218,21 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     
     @objc func moveLine(_ gestureRecognizer: UIPanGestureRecognizer) {
         print("Recognized a pan")
+        
+        let vectorVelocity = moveRecognizer.velocity(in: self)
+        currentVelocity = hypot(vectorVelocity.x, vectorVelocity.y)
+        minVelocity = min(minVelocity, currentVelocity)
+        maxVelocity = max(maxVelocity, currentVelocity)
+        
+        print(currentVelocity)
+        print(minVelocity)
+        print(maxVelocity)
+        print(lineThickness)
+        
         guard longPressRecognizer.state == .changed else { return }
         if let index = selectedLineIndex {
             if gestureRecognizer.state == .changed {
+               
                 let translation = gestureRecognizer.translation(in: self)
                 
                 finishedLines[index].begin.x += translation.x
