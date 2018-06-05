@@ -59,6 +59,12 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         moveRecognizer.delegate = self
         moveRecognizer.cancelsTouchesInView = false
         addGestureRecognizer(moveRecognizer)
+        
+        let swipeRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showColorPanel(_:)))
+        swipeRecognizer.numberOfTouchesRequired = 3
+        swipeRecognizer.direction = .up
+        swipeRecognizer.delaysTouchesBegan = true
+        addGestureRecognizer(swipeRecognizer)
     }
     
     //MARK: - Drawing methods
@@ -221,6 +227,10 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
                 setNeedsDisplay()
             }
         }
+    }
+    
+    @objc func showColorPanel(_ gestureRecognizer: UIGestureRecognizer) {
+        print("Recognized a swipe")
     }
     
     //MARK: - UIGestureRecognizerDelegate methods
