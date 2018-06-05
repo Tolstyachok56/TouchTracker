@@ -9,15 +9,15 @@
 import UIKit
 
 class DrawView: UIView {
+    
     var currentLines = [NSValue: Line]()
     var finishedLines = [Line]()
     var selectedLineIndex: Int? {
         didSet {
-            if selectedLineIndex == nil {
-                UIMenuController.shared.setMenuVisible(false, animated: true)
-            }
+            if selectedLineIndex == nil { UIMenuController.shared.setMenuVisible(false, animated: true) }
         }
     }
+    
     @IBInspectable var finishedLineColor: UIColor = .black {
         didSet { setNeedsDisplay() }
     }
@@ -33,34 +33,7 @@ class DrawView: UIView {
     override var canBecomeFirstResponder: Bool {
         return true
     }
-    
-    //MARK: -
-    
-    func indexOfLine(at point: CGPoint) -> Int? {
-        for (index, line) in finishedLines.enumerated() {
-            let begin = line.begin
-            let end = line.end
-            
-            for t in stride(from: CGFloat(0), to: 1.0, by: 0.05) {
-                let x = begin.x + ((end.x - begin.x) * t)
-                let y = begin.y + ((end.y - begin.y) * t)
-                
-                if hypot(x - point.x, y - point.y) < 20 {
-                    return index
-                }
-            }
-        }
-        return nil
-    }
-    
-    @objc func deleteLine(_ sender: UIMenuController) {
-        if let index = selectedLineIndex {
-            finishedLines.remove(at: index)
-            selectedLineIndex = nil
-        }
-        setNeedsDisplay()
-    }
-    
+
     //MARK: - Initializers
     
     required init?(coder aDecoder: NSCoder) {
@@ -75,6 +48,9 @@ class DrawView: UIView {
         tapRecognizer.delaysTouchesBegan = true
         tapRecognizer.require(toFail: doubleTapRecognizer)
         addGestureRecognizer(tapRecognizer)
+        
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress))
+        addGestureRecognizer(longPressRecognizer)
     }
     
     //MARK: - Drawing methods
@@ -177,6 +153,47 @@ class DrawView: UIView {
         } else {
             menu.setMenuVisible(false, animated: true)
         }
+        setNeedsDisplay()
+    }
+    
+    func indexOfLine(at point: CGPoint) -> Int? {
+        for (index, line) in finishedLines.enumerated() {
+            let begin = line.begin
+            let end = line.end
+            
+            for t in stride(from: CGFloat(0), to: 1.0, by: 0.05) {
+                let x = begin.x + ((end.x - begin.x) * t)
+                let y = begin.y + ((end.y - begin.y) * t)
+                
+                if hypot(x - point.x, y - point.y) < 20 {
+                    return index
+                }
+            }
+        }
+        return nil
+    }
+    
+    @objc func deleteLine(_ sender: UIMenuController) {
+        if let index = selectedLineIndex {
+            finishedLines.remove(at: index)
+            selectedLineIndex = nil
+        }
+        setNeedsDisplay()
+    }
+    
+    @objc func longPress(_ gestureRecognizer: UIGestureRecognizer) {
+        print("Recognized a long press")
+        
+        if gestureRecognizer.state == .began {
+            let point = gestureRecognizer.location(in: self)
+            selectedLineIndex = indexOfLine(at: point)
+            if selectedLineIndex != nil {
+                currentLines.removeAll()
+            }
+        } else if gestureRecognizer.state == .ended {
+            selectedLineIndex = nil
+        }
+        
         setNeedsDisplay()
     }
     
