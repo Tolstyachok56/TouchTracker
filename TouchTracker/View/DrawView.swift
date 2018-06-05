@@ -13,20 +13,39 @@ class DrawView: UIView {
     var finishedLines = [Line]()
     
     @IBInspectable var finishedLineColor: UIColor = .black {
-        didSet {
-            setNeedsDisplay()
-        }
+        didSet { setNeedsDisplay() }
     }
     
     @IBInspectable var currentLineColor: UIColor = .red {
-        didSet {
-            setNeedsDisplay()
-        }
+        didSet { setNeedsDisplay() }
     }
     
     @IBInspectable var lineThickness: CGFloat = 10 {
-        didSet {
-            setNeedsDisplay()
+        didSet { setNeedsDisplay() }
+    }
+    
+    //MARK: - Initializers
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(doubleTap))
+        doubleTapRecognizer.numberOfTapsRequired = 2
+        doubleTapRecognizer.delaysTouchesBegan = true
+        addGestureRecognizer(doubleTapRecognizer)
+    }
+    
+    
+    //MARK: - Drawing methods
+    
+    override func draw(_ rect: CGRect) {
+        finishedLineColor.setStroke()
+        for line in finishedLines {
+            stroke(line)
+        }
+        currentLineColor.setStroke()
+        for (_, line) in currentLines {
+            stroke(line)
         }
     }
     
@@ -40,16 +59,7 @@ class DrawView: UIView {
         path.stroke()
     }
     
-    override func draw(_ rect: CGRect) {
-        finishedLineColor.setStroke()
-        for line in finishedLines {
-            stroke(line)
-        }
-        currentLineColor.setStroke()
-        for (_, line) in currentLines {
-            stroke(line)
-        }
-    }
+    //MARK: - UIResponder methods
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         print(#function)
@@ -87,6 +97,16 @@ class DrawView: UIView {
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         print(#function)
         currentLines.removeAll()
+        setNeedsDisplay()
+    }
+    
+    //MARK: - UITapGestureRecognizer methods
+    
+    @objc func doubleTap(_ gestureRecognizer: UIGestureRecognizer) {
+        print("Recognized a double tap")
+        
+        currentLines.removeAll()
+        finishedLines.removeAll()
         setNeedsDisplay()
     }
     
