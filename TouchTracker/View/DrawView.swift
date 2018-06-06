@@ -55,15 +55,17 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
         addGestureRecognizer(longPressRecognizer)
         
-        moveRecognizer = UIPanGestureRecognizer(target: self, action: #selector(moveLine(_:)))
-        moveRecognizer.delegate = self
-        moveRecognizer.cancelsTouchesInView = false
-        addGestureRecognizer(moveRecognizer)
-        
         let swipeRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showColorPanel(_:)))
         swipeRecognizer.numberOfTouchesRequired = 3
         swipeRecognizer.direction = .up
+        swipeRecognizer.delaysTouchesBegan = true
         addGestureRecognizer(swipeRecognizer)
+        
+        moveRecognizer = UIPanGestureRecognizer(target: self, action: #selector(moveLine(_:)))
+        moveRecognizer.delegate = self
+        moveRecognizer.cancelsTouchesInView = false
+        moveRecognizer.require(toFail: swipeRecognizer)
+        addGestureRecognizer(moveRecognizer)
     }
     
     //MARK: - Drawing methods
@@ -123,6 +125,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
             let key = NSValue(nonretainedObject: touch)
             if var line = currentLines[key] {
                 line.end = touch.location(in: self)
+                line.color = finishedLineColor
                 finishedLines.append(line)
                 currentLines.removeValue(forKey: key)
             }
@@ -247,17 +250,17 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     }
     
     @objc func selectRed(_ sender: UIMenuController) {
-        currentLineColor = UIColor.red
+        finishedLineColor = UIColor.red
         sender.setMenuVisible(false, animated: true)
     }
     
     @objc func selectBlue(_ sender: UIMenuController) {
-        currentLineColor = UIColor.blue
+        finishedLineColor = UIColor.blue
         sender.setMenuVisible(false, animated: true)
     }
     
     @objc func selectBlack(_ sender: UIMenuController) {
-        currentLineColor = UIColor.black
+        finishedLineColor = UIColor.black
         sender.setMenuVisible(false, animated: true)
     }
     
