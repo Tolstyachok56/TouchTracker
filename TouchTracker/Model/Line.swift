@@ -6,10 +6,12 @@
 //  Copyright © 2018 Виктория Бадисова. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import CoreGraphics
 
 struct Line {
     var begin = CGPoint.zero
     var end = CGPoint.zero
+    
+    var color: UIColor = .black
 }

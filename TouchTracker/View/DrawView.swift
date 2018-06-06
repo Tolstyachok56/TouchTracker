@@ -63,19 +63,19 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         let swipeRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showColorPanel(_:)))
         swipeRecognizer.numberOfTouchesRequired = 3
         swipeRecognizer.direction = .up
-        swipeRecognizer.delaysTouchesBegan = true
         addGestureRecognizer(swipeRecognizer)
     }
     
     //MARK: - Drawing methods
     
     override func draw(_ rect: CGRect) {
-        finishedLineColor.setStroke()
         for line in finishedLines {
+            line.color.setStroke()
             stroke(line)
         }
-        currentLineColor.setStroke()
+        
         for (_, line) in currentLines {
+            line.color.setStroke()
             stroke(line)
         }
         if let index = selectedLineIndex {
@@ -101,7 +101,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         print(#function)
         for touch in touches {
             let location = touch.location(in: self)
-            let newLine = Line(begin: location, end: location)
+            let newLine = Line(begin: location, end: location, color: currentLineColor)
             let key = NSValue(nonretainedObject: touch)
             currentLines[key] = newLine
         }
@@ -229,9 +229,38 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         }
     }
     
-    @objc func showColorPanel(_ gestureRecognizer: UIGestureRecognizer) {
+    @objc func showColorPanel(_ gestureRecognizer: UISwipeGestureRecognizer) {
         print("Recognized a swipe")
+        currentLines.removeAll()
+        
+        let menu = UIMenuController.shared
+        becomeFirstResponder()
+        
+        let redItem = UIMenuItem(title: "Red", action: #selector(selectRed))
+        let blueItem = UIMenuItem(title: "Blue", action: #selector(selectBlue))
+        let blackItem = UIMenuItem(title: "Black", action: #selector(selectBlack))
+        menu.menuItems = [redItem, blueItem, blackItem]
+        
+        let targetRect = CGRect(x: self.frame.midX, y: self.frame.maxY, width: 2, height: 2)
+        menu.setTargetRect(targetRect, in: self)
+        menu.setMenuVisible(true, animated: true)
     }
+    
+    @objc func selectRed(_ sender: UIMenuController) {
+        currentLineColor = UIColor.red
+        sender.setMenuVisible(false, animated: true)
+    }
+    
+    @objc func selectBlue(_ sender: UIMenuController) {
+        currentLineColor = UIColor.blue
+        sender.setMenuVisible(false, animated: true)
+    }
+    
+    @objc func selectBlack(_ sender: UIMenuController) {
+        currentLineColor = UIColor.black
+        sender.setMenuVisible(false, animated: true)
+    }
+    
     
     //MARK: - UIGestureRecognizerDelegate methods
     
